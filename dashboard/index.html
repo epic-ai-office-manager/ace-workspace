@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ ACE Operations Dashboard</title>
+<style>
+  :root {
+    --bg: #0a0a0f; --card: #12121a; --border: #1e1e2e;
+    --accent: #6366f1; --accent2: #22d3ee; --green: #22c55e;
+    --yellow: #eab308; --red: #ef4444; --text: #e2e8f0; --muted: #64748b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  
+  .header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 18px; font-weight: 600; }
+  .header h1 span { color: var(--accent); }
+  .header .status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .header .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px 20px; max-width: 1400px; }
+  @media (max-width: 1024px) { .grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+  
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .card h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 12px; }
+  
+  .span2 { grid-column: span 2; }
+  @media (max-width: 640px) { .span2 { grid-column: span 1; } }
+  .span4 { grid-column: span 4; }
+  @media (max-width: 1024px) { .span4 { grid-column: span 2; } }
+  @media (max-width: 640px) { .span4 { grid-column: span 1; } }
+  
+  /* KPI tiles */
+  .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; grid-column: span 4; }
+  @media (max-width: 1024px) { .kpis { grid-template-columns: repeat(3, 1fr); grid-column: span 2; } }
+  @media (max-width: 640px) { .kpis { grid-template-columns: repeat(2, 1fr); grid-column: span 1; } }
+  .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .kpi .num { font-size: 24px; font-weight: 700; }
+  .kpi .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .red { color: var(--red); }
+  .green { color: var(--green); }
+  .yellow { color: var(--yellow); }
+  .cyan { color: var(--accent2); }
+  .purple { color: var(--accent); }
+  
+  /* Bars */
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+  .bar-label { min-width: 100px; color: var(--muted); }
+  .bar-track { flex: 1; height: 20px; background: rgba(255,255,255,0.03); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 6px; font-size: 10px; font-weight: 600; min-width: 30px; }
+  
+  /* Systems */
+  .sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .sys { display: flex; align-items: center; gap: 6px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px; font-size: 12px; }
+  .sys .ind { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .sys .ind.on { background: var(--green); }
+  .sys .ind.off { background: var(--red); }
+  .sys .det { font-size: 10px; color: var(--muted); }
+  
+  /* Activity */
+  .activity { list-style: none; max-height: 300px; overflow-y: auto; }
+  .activity li { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px; }
+  .activity li:last-child { border: none; }
+  .activity .time { color: var(--accent2); font-family: monospace; font-size: 11px; min-width: 42px; }
+  .activity .badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; margin-left: auto; white-space: nowrap; }
+  .badge.done { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge.in_progress { background: rgba(99,102,241,0.15); color: var(--accent); }
+  
+  /* Current task */
+  .current { grid-column: span 4; background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(34,211,238,0.04)); border: 1px solid rgba(99,102,241,0.15); border-radius: 10px; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+  @media (max-width: 1024px) { .current { grid-column: span 2; } }
+  @media (max-width: 640px) { .current { grid-column: span 1; } }
+  .spinner { width: 14px; height: 14px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .current .txt { font-size: 14px; }
+  
+  /* Red flags */
+  .flags { list-style: none; }
+  .flags li { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px; line-height: 1.4; }
+  .flags li:last-child { border: none; }
+  .flags .icon { margin-right: 4px; }
+
+  /* Kanban */
+  .kanban { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 640px) { .kanban { grid-template-columns: 1fr; } }
+  .col h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; padding-bottom: 6px; }
+  .col h3.doing { border-bottom: 2px solid var(--accent); }
+  .col h3.next { border-bottom: 2px solid var(--yellow); }
+  .col h3.done { border-bottom: 2px solid var(--green); }
+  .task { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-bottom: 6px; font-size: 11px; line-height: 1.3; }
+  .task .pri { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; display: inline-block; margin-bottom: 4px; }
+  .p0 { background: rgba(239,68,68,0.15); color: var(--red); }
+  .p1 { background: rgba(234,179,8,0.15); color: var(--yellow); }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>⚡ <span>ACE</span> — EPIC Operations</h1>
+  <div class="status"><div class="dot"></div><span id="upd">Loading...</span></div>
+</div>
+
+<div class="grid">
+  <!-- Current Task -->
+  <div class="current">
+    <div class="spinner"></div>
+    <div class="txt" id="cur">Loading...</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi"><div class="num red" id="k-overdue">—</div><div class="lbl">Overdue ($XCD)</div><div class="sub" id="k-overdue-sub"></div></div>
+    <div class="kpi"><div class="num cyan" id="k-mrr">—</div><div class="lbl">Active MRR</div><div class="sub" id="k-mrr-sub"></div></div>
+    <div class="kpi"><div class="num yellow" id="k-leads">—</div><div class="lbl">CRM Leads</div><div class="sub" id="k-leads-sub"></div></div>
+    <div class="kpi"><div class="num purple" id="k-tickets">—</div><div class="lbl">Open Tickets</div><div class="sub" id="k-tickets-sub"></div></div>
+    <div class="kpi"><div class="num green" id="k-network">—</div><div class="lbl">Network Up</div><div class="sub" id="k-net-sub"></div></div>
+    <div class="kpi"><div class="num" id="k-team">—</div><div class="lbl">Team Active</div><div class="sub" id="k-team-sub"></div></div>
+  </div>
+
+  <!-- CRM Pipeline -->
+  <div class="card span2">
+    <h2>📈 CRM Pipeline ($28,700 expected)</h2>
+    <div id="crm-bars"></div>
+  </div>
+
+  <!-- Helpdesk -->
+  <div class="card">
+    <h2>🎫 Helpdesk (62 open)</h2>
+    <div id="hd-bars"></div>
+  </div>
+
+  <!-- Field Service -->
+  <div class="card">
+    <h2>🔧 Field Service (696 total)</h2>
+    <div id="fs-bars"></div>
+  </div>
+
+  <!-- Red Flags -->
+  <div class="card span2">
+    <h2>🚨 Red Flags</h2>
+    <ul class="flags" id="flags"></ul>
+  </div>
+
+  <!-- Systems -->
+  <div class="card">
+    <h2>🔌 Systems</h2>
+    <div class="sys-grid" id="sys"></div>
+  </div>
+
+  <!-- Activity -->
+  <div class="card">
+    <h2>📋 Activity</h2>
+    <ul class="activity" id="act"></ul>
+  </div>
+
+  <!-- Kanban -->
+  <div class="card span4">
+    <h2>🏗️ ACE Kanban</h2>
+    <div class="kanban">
+      <div class="col">
+        <h3 class="doing">🔨 In Progress</h3>
+        <div class="task"><div class="pri p0">P0</div>Dashboard deployment — going live now</div>
+        <div class="task"><div class="pri p0">P0</div>CRM triage — 76 stale leads need sorting</div>
+      </div>
+      <div class="col">
+        <h3 class="next">📋 Up Next</h3>
+        <div class="task"><div class="pri p0">P0</div>Collections report — $40K+ overdue 90+ days</div>
+        <div class="task"><div class="pri p1">P1</div>Subscription win-back — 5 churned ($5,300/mo)</div>
+        <div class="task"><div class="pri p1">P1</div>Voice agent Phase 2 — Odoo contact lookup</div>
+      </div>
+      <div class="col">
+        <h3 class="done">✅ Done Today</h3>
+        <div class="task">Full executive report delivered ✓</div>
+        <div class="task">GitHub: 50 repos, all forked/cloned ✓</div>
+        <div class="task">DeepSeek model fixed in config ✓</div>
+        <div class="task">Voice agent live +1 767-818-9100 ✓</div>
+        <div class="task">UISP CRM + NMS connected ✓</div>
+        <div class="task">Odoo + Email + Calendar connected ✓</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function load() {
+  try {
+    const r = await fetch('./activity.json?' + Date.now());
+    const d = await r.json();
+    const b = d.business || {};
+    
+    document.getElementById('upd').textContent = 'Updated: ' + new Date(d.lastUpdated).toLocaleString();
+    document.getElementById('cur').textContent = d.currentTask || 'Idle';
+    
+    // KPIs
+    if (b.finance) {
+      document.getElementById('k-overdue').textContent = '$' + (b.finance.realOverdue||0).toLocaleString();
+      document.getElementById('k-overdue-sub').textContent = b.finance.overdueCount + ' invoices, ' + b.finance.overdue90plus + ' are 90+ days';
+    }
+    if (b.subscriptions) {
+      document.getElementById('k-mrr').textContent = '$' + (b.subscriptions.activeMRR||0).toLocaleString();
+      document.getElementById('k-mrr-sub').textContent = b.subscriptions.activeCount + ' active, ' + b.subscriptions.churnedCount + ' churned';
+    }
+    if (b.crm) {
+      document.getElementById('k-leads').textContent = b.crm.totalLeads;
+      document.getElementById('k-leads-sub').textContent = b.crm.newLeads + ' new, last win ' + (b.crm.lastWin||'?');
+    }
+    if (b.helpdesk) {
+      document.getElementById('k-tickets').textContent = b.helpdesk.open;
+      document.getElementById('k-tickets-sub').textContent = b.helpdesk.requiresAttention + ' need attention';
+    }
+    if (b.network) {
+      document.getElementById('k-network').textContent = b.network.uptimePercent + '%';
+      document.getElementById('k-net-sub').textContent = b.network.online + '/' + b.network.totalDevices + ' devices';
+    }
+    if (b.team) {
+      document.getElementById('k-team').textContent = b.team.active;
+      document.getElementById('k-team-sub').textContent = '25 active projects';
+    }
+    
+    // CRM bars
+    if (b.crm) {
+      const mx = b.crm.newLeads;
+      const stages = [
+        {l:'New',v:b.crm.newLeads,c:'var(--muted)'},
+        {l:'Qualified',v:b.crm.qualified,c:'var(--accent)'},
+        {l:'Proposition',v:b.crm.proposition,c:'var(--yellow)'},
+        {l:'Won',v:b.crm.won,c:'var(--green)'}
+      ];
+      document.getElementById('crm-bars').innerHTML = stages.map(s =>
+        `<div class="bar-row"><span class="bar-label">${s.l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(s.v/mx*100,4)}%;background:${s.c}">${s.v}</div></div></div>`
+      ).join('');
+    }
+    
+    // Helpdesk bars
+    if (b.helpdesk) {
+      const hd = [
+        {l:'New',v:b.helpdesk.new,c:'var(--yellow)'},
+        {l:'In Progress',v:b.helpdesk.inProgress,c:'var(--accent)'},
+        {l:'Billing',v:b.helpdesk.billing,c:'var(--muted)'},
+        {l:'Attention',v:b.helpdesk.requiresAttention,c:'var(--red)'}
+      ];
+      const hmx = Math.max(...hd.map(h=>h.v));
+      document.getElementById('hd-bars').innerHTML = hd.map(s =>
+        `<div class="bar-row"><span class="bar-label">${s.l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(s.v/hmx*100,8)}%;background:${s.c}">${s.v}</div></div></div>`
+      ).join('');
+    }
+    
+    // Field service bars
+    if (b.fieldService) {
+      const fs = [
+        {l:'New Backlog',v:b.fieldService.newBacklog,c:'var(--yellow)'},
+        {l:'In Progress',v:b.fieldService.inProgress,c:'var(--accent)'},
+        {l:'Intervention',v:b.fieldService.requiresIntervention,c:'var(--red)'},
+        {l:'Done',v:b.fieldService.done,c:'var(--green)'}
+      ];
+      const fmx = Math.max(...fs.map(f=>f.v));
+      document.getElementById('fs-bars').innerHTML = fs.map(s =>
+        `<div class="bar-row"><span class="bar-label">${s.l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(s.v/fmx*100,4)}%;background:${s.c}">${s.v}</div></div></div>`
+      ).join('');
+    }
+    
+    // Red flags
+    const flags = [
+      {icon:'🔴', text:'No CRM wins since Oct 2025 — pipeline frozen'},
+      {icon:'🟡', text:'76 untouched leads in "New" — need triage'},
+      {icon:'🔴', text:'$40K+ overdue 90+ days — collections needed'},
+      {icon:'🟡', text:'Churn ($5,300) ≈ Active MRR ($6,611) — dangerous ratio'},
+      {icon:'🟡', text:'244 overdue project tasks across 25 projects'},
+      {icon:'🟡', text:'159 field service tasks in backlog'}
+    ];
+    document.getElementById('flags').innerHTML = flags.map(f =>
+      `<li><span class="icon">${f.icon}</span>${f.text}</li>`
+    ).join('');
+    
+    // Systems
+    if (d.systems) {
+      document.getElementById('sys').innerHTML = Object.entries(d.systems).map(([k,v]) => {
+        const on = v.status === 'connected' || v.status === 'online';
+        const det = v.url || v.did || v.account || (v.repos ? v.repos+' repos' : (v.devices ? v.online+'/'+v.devices : v.clients ? v.clients+' clients' : v.status));
+        return `<div class="sys"><div class="ind ${on?'on':'off'}"></div><div><div>${k}</div><div class="det">${det}</div></div></div>`;
+      }).join('');
+    }
+    
+    // Activity
+    if (d.activity) {
+      document.getElementById('act').innerHTML = d.activity.slice(0,12).map(a =>
+        `<li><span class="time">${a.time}</span><span>${a.action}</span><span class="badge ${a.status}">${a.status==='done'?'✓':'⟳'}</span></li>`
+      ).join('');
+    }
+  } catch(e) { console.error(e); }
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
