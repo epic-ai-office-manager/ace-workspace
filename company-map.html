@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPIC Communications — Company Map</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e6edf3; padding: 20px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 1.8em; margin-bottom: 5px; }
+  .subtitle { text-align: center; color: #8b949e; margin-bottom: 30px; font-size: 0.9em; }
+  
+  /* Org Chart */
+  .org-chart { text-align: center; margin-bottom: 40px; }
+  .org-node { display: inline-block; background: #161b22; border: 2px solid #30363d; border-radius: 12px; padding: 12px 20px; margin: 5px; min-width: 140px; }
+  .org-node.ceo { border-color: #58a6ff; background: #0d1b2e; }
+  .org-node.ai { border-color: #a371f7; background: #1a0d2e; }
+  .org-node.sales { border-color: #3fb950; background: #0d2e1a; }
+  .org-node.ops { border-color: #d29922; background: #2e250d; }
+  .org-node.admin { border-color: #f0883e; background: #2e1a0d; }
+  .org-node.eng { border-color: #79c0ff; background: #0d1f2e; }
+  .org-name { font-weight: 700; font-size: 1em; }
+  .org-title { font-size: 0.75em; color: #8b949e; margin-top: 2px; }
+  .org-row { display: flex; justify-content: center; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+  .connector { width: 2px; height: 20px; background: #30363d; margin: 0 auto; }
+  .connector-h { display: flex; justify-content: center; align-items: flex-start; gap: 0; margin: 0 auto; }
+  
+  /* Revenue */
+  .section { margin-bottom: 35px; }
+  .section-title { font-size: 1.3em; font-weight: 700; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #21262d; }
+  .rev-bar { margin-bottom: 12px; }
+  .rev-label { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.9em; }
+  .rev-track { background: #21262d; border-radius: 8px; height: 24px; overflow: hidden; }
+  .rev-fill { height: 100%; border-radius: 8px; display: flex; align-items: center; padding-left: 10px; font-size: 0.75em; font-weight: 600; }
+  .rev-fill.isp { background: linear-gradient(90deg, #238636, #3fb950); width: 85%; }
+  .rev-fill.it { background: linear-gradient(90deg, #1a5276, #58a6ff); width: 35%; }
+  .rev-fill.odoo { background: linear-gradient(90deg, #553098, #a371f7); width: 12%; }
+  .rev-fill.voice { background: linear-gradient(90deg, #7a4706, #d29922); width: 5%; }
+  .rev-fill.ai { background: linear-gradient(90deg, #5a1a1a, #f85149); width: 2%; }
+  
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px; }
+  .kpi { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 16px; text-align: center; }
+  .kpi.red { border-color: #f85149; }
+  .kpi.yellow { border-color: #d29922; }
+  .kpi.green { border-color: #3fb950; }
+  .kpi-value { font-size: 2em; font-weight: 800; }
+  .kpi.red .kpi-value { color: #f85149; }
+  .kpi.yellow .kpi-value { color: #d29922; }
+  .kpi.green .kpi-value { color: #3fb950; }
+  .kpi-label { font-size: 0.8em; color: #8b949e; margin-top: 4px; }
+  
+  /* Systems */
+  .sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .sys-box { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 16px; }
+  .sys-box h3 { margin-bottom: 10px; font-size: 1em; }
+  .sys-box li { list-style: none; padding: 4px 0; font-size: 0.85em; color: #c9d1d9; }
+  .sys-box li::before { content: "→ "; color: #58a6ff; }
+  
+  /* Department Cards */
+  .dept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
+  .dept { background: #161b22; border-radius: 12px; padding: 16px; border-left: 4px solid; }
+  .dept.sales { border-color: #3fb950; }
+  .dept.ops { border-color: #d29922; }
+  .dept.admin { border-color: #f0883e; }
+  .dept h3 { font-size: 1em; margin-bottom: 8px; }
+  .dept p { font-size: 0.82em; color: #8b949e; line-height: 1.5; }
+  .dept .person { color: #c9d1d9; }
+  
+  @media (max-width: 700px) {
+    .dept-grid { grid-template-columns: 1fr; }
+    .sys-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  
+  .footer { text-align: center; color: #484f58; font-size: 0.75em; margin-top: 30px; padding-top: 15px; border-top: 1px solid #21262d; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🧠 EPIC Communications</h1>
+  <p class="subtitle">Company Map • Updated 2026-01-31</p>
+  
+  <!-- ORG CHART -->
+  <div class="section">
+    <div class="section-title">👑 Organization</div>
+    <div class="org-chart">
+      <div class="org-row">
+        <div class="org-node ceo">
+          <div class="org-name">Eric Giraud</div>
+          <div class="org-title">CEO / Founder</div>
+        </div>
+      </div>
+      <div class="connector"></div>
+      <div class="org-row">
+        <div class="org-node ai">
+          <div class="org-name">⚡ ACE</div>
+          <div class="org-title">COO (AI)</div>
+        </div>
+      </div>
+      <div class="connector"></div>
+      <div class="org-row">
+        <div class="org-node sales">
+          <div class="org-name">Richard Mendes</div>
+          <div class="org-title">Sales Manager</div>
+        </div>
+        <div class="org-node ops">
+          <div class="org-name">Phillip Alleyne</div>
+          <div class="org-title">Operations Manager</div>
+        </div>
+        <div class="org-node admin">
+          <div class="org-name">Joann Polydore</div>
+          <div class="org-title">Admin & Finance</div>
+        </div>
+      </div>
+      <div class="connector"></div>
+      <div class="org-row">
+        <div class="org-node eng">
+          <div class="org-name">Desmond</div>
+          <div class="org-title">Field Engineer</div>
+        </div>
+        <div class="org-node eng">
+          <div class="org-name">Najeekyle</div>
+          <div class="org-title">Field Engineer</div>
+        </div>
+        <div class="org-node" style="border-color:#6e7681">
+          <div class="org-name">Evans</div>
+          <div class="org-title">Contractor</div>
+        </div>
+        <div class="org-node" style="border-color:#6e7681">
+          <div class="org-name">Marlon</div>
+          <div class="org-title">Contractor</div>
+        </div>
+        <div class="org-node admin">
+          <div class="org-name">Hakeem</div>
+          <div class="org-title">Admin Support</div>
+        </div>
+        <div class="org-node admin">
+          <div class="org-name">Veronica</div>
+          <div class="org-title">Admin Support</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- DEPARTMENTS -->
+  <div class="section">
+    <div class="section-title">🏢 Departments</div>
+    <div class="dept-grid">
+      <div class="dept sales">
+        <h3>💰 Sales</h3>
+        <p><span class="person">Richard Mendes</span><br>
+        Pipeline: 11 active deals<br>
+        Target: 2 closes/month<br>
+        Focus: Qualify → Propose → Close</p>
+      </div>
+      <div class="dept ops">
+        <h3>⚙️ Engineering</h3>
+        <p><span class="person">Eric (head) → Phillip (ops)</span><br>
+        Field team: Desmond, Najeekyle<br>
+        Contractors: Evans, Marlon<br>
+        Backlog: 159 new tasks</p>
+      </div>
+      <div class="dept admin">
+        <h3>📋 Administration</h3>
+        <p><span class="person">Joann, Hakeem, Veronica</span><br>
+        Collections: $26K overdue<br>
+        Helpdesk triage: 58 open<br>
+        Odoo data & billing</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- KPIs -->
+  <div class="section">
+    <div class="section-title">📊 Key Numbers</div>
+    <div class="kpi-grid">
+      <div class="kpi green">
+        <div class="kpi-value">$14K</div>
+        <div class="kpi-label">Monthly Recurring<br>(ISP/UISP)</div>
+      </div>
+      <div class="kpi yellow">
+        <div class="kpi-value">$8.3K</div>
+        <div class="kpi-label">Avg Monthly<br>(Projects/Services)</div>
+      </div>
+      <div class="kpi red">
+        <div class="kpi-value">$26K</div>
+        <div class="kpi-label">Overdue AR<br>(90+ days)</div>
+      </div>
+      <div class="kpi yellow">
+        <div class="kpi-value">29</div>
+        <div class="kpi-label">Pipeline Deals<br>(cleaned)</div>
+      </div>
+      <div class="kpi red">
+        <div class="kpi-value">159</div>
+        <div class="kpi-label">Field Service<br>Backlog</div>
+      </div>
+      <div class="kpi yellow">
+        <div class="kpi-value">58</div>
+        <div class="kpi-label">Helpdesk<br>Open Tickets</div>
+      </div>
+      <div class="kpi green">
+        <div class="kpi-value">91%</div>
+        <div class="kpi-label">Network<br>Uptime</div>
+      </div>
+      <div class="kpi green">
+        <div class="kpi-value">527</div>
+        <div class="kpi-label">ISP Clients<br>(warm market)</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- REVENUE -->
+  <div class="section">
+    <div class="section-title">💵 Revenue Streams</div>
+    <div class="rev-bar">
+      <div class="rev-label"><span>🌐 ISP / Internet</span><span>$14,023/mo • 527 clients</span></div>
+      <div class="rev-track"><div class="rev-fill isp">85% of revenue</div></div>
+    </div>
+    <div class="rev-bar">
+      <div class="rev-label"><span>🔧 IT Services / Projects</span><span>~$8,300/mo avg</span></div>
+      <div class="rev-track"><div class="rev-fill it">35%</div></div>
+    </div>
+    <div class="rev-bar">
+      <div class="rev-label"><span>💜 Odoo Implementation</span><span>Early stage</span></div>
+      <div class="rev-track"><div class="rev-fill odoo"></div></div>
+    </div>
+    <div class="rev-bar">
+      <div class="rev-label"><span>📞 Voice / Telecom</span><span>1000 DIDs, near-zero COGS</span></div>
+      <div class="rev-track"><div class="rev-fill voice"></div></div>
+    </div>
+    <div class="rev-bar">
+      <div class="rev-label"><span>🤖 AI / Automation</span><span>$0 today — highest ceiling</span></div>
+      <div class="rev-track"><div class="rev-fill ai"></div></div>
+    </div>
+  </div>
+  
+  <!-- SYSTEMS -->
+  <div class="section">
+    <div class="section-title">🔧 Systems & Tools</div>
+    <div class="sys-grid">
+      <div class="sys-box">
+        <h3>🏢 Business</h3>
+        <ul>
+          <li>Odoo 19 — Full ERP stack</li>
+          <li>UISP — ISP client mgmt & billing</li>
+          <li>Google Workspace — Email, Cal, Drive</li>
+          <li>Magnus Billing — Voice/SIP trunks</li>
+          <li>GitHub — 50 repos</li>
+          <li>Notion — 2nd Brain (NEW)</li>
+        </ul>
+      </div>
+      <div class="sys-box">
+        <h3>🤖 AI Stack</h3>
+        <ul>
+          <li>Clawdbot/ACE — 25 models, 7 providers</li>
+          <li>Voice Agent — +1 767-818-9100</li>
+          <li>LiveKit Cloud — Voice AI platform</li>
+          <li>Ollama — Free self-hosted LLMs</li>
+          <li>OpenAI, DeepSeek, Kimi, Gemini</li>
+          <li>ElevenLabs — Text-to-speech</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    EPIC Communications Inc • 8 Castle Street, Roseau, Dominica • Generated by ACE<br>
+    15 people • $22K/mo revenue • 527 clients • Building the future
+  </div>
+</div>
+</body>
+</html>
