@@ -74,7 +74,6 @@
     }
   },
   "llm": {
-    "todaySpend": 80.96,
     "todayTokens": 75605990,
     "todayTokensIn": 47246,
     "todayTokensOut": 243815,
@@ -84,13 +83,50 @@
     "contextMax": 200000,
     "contextPercent": 67,
     "compactions": 2,
-    "sessionTimeLeft": "5h 92% left",
-    "weekLeft": "74% left",
-    "models": [
-      {"name": "claude-opus-4.5", "spend": 80.96, "role": "Main (ACE)"},
-      {"name": "deepseek-chat", "spend": 0.00, "role": "Cron/Ops"},
-      {"name": "claude-sonnet-4.5", "spend": 0.00, "role": "Sub-agents"},
-      {"name": "claude-haiku-4.5", "spend": 0.00, "role": "Ops tasks"}
+    "providers": [
+      {
+        "name": "Anthropic (OAuth)",
+        "billing": "subscription",
+        "plan": "Claude Pro/Max",
+        "note": "Rate-limited, no per-token cost",
+        "sessionQuota": "92%",
+        "sessionWindow": "5h",
+        "weekQuota": "74%",
+        "weekWindow": "5d 2h",
+        "models": [
+          {"name": "claude-opus-4.5", "role": "Main (ACE)", "tokens": 75600000},
+          {"name": "claude-sonnet-4.5", "role": "Sub-agents", "tokens": 0},
+          {"name": "claude-haiku-4.5", "role": "Ops tasks", "tokens": 0}
+        ]
+      },
+      {
+        "name": "DeepSeek (API)",
+        "billing": "pay-per-token",
+        "spend": 0.00,
+        "note": "$0.27/M input, $1.10/M output",
+        "models": [
+          {"name": "deepseek-chat", "role": "Cron/Ops", "tokens": 0, "spend": 0.00}
+        ]
+      },
+      {
+        "name": "Kimi (API)",
+        "billing": "pay-per-token",
+        "spend": 0.00,
+        "note": "Free tier available",
+        "models": [
+          {"name": "kimi-k2.5", "role": "Available", "tokens": 0, "spend": 0.00}
+        ]
+      },
+      {
+        "name": "Ollama (Self-hosted)",
+        "billing": "free",
+        "spend": 0.00,
+        "note": "66.118.37.12 — your hardware",
+        "models": [
+          {"name": "deepseek-r1:7b", "role": "Available", "tokens": 0, "spend": 0.00},
+          {"name": "qwen2.5:7b", "role": "Available", "tokens": 0, "spend": 0.00}
+        ]
+      }
     ]
   }
 }
