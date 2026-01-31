@@ -72,5 +72,25 @@
     "team": {
       "active": 13
     }
+  },
+  "llm": {
+    "todaySpend": 80.96,
+    "todayTokens": 75605990,
+    "todayTokensIn": 47246,
+    "todayTokensOut": 243815,
+    "todayCacheRead": 68826277,
+    "todayCacheWrite": 6488652,
+    "contextUsed": 134000,
+    "contextMax": 200000,
+    "contextPercent": 67,
+    "compactions": 2,
+    "sessionTimeLeft": "5h 92% left",
+    "weekLeft": "74% left",
+    "models": [
+      {"name": "claude-opus-4.5", "spend": 80.96, "role": "Main (ACE)"},
+      {"name": "deepseek-chat", "spend": 0.00, "role": "Cron/Ops"},
+      {"name": "claude-sonnet-4.5", "spend": 0.00, "role": "Sub-agents"},
+      {"name": "claude-haiku-4.5", "spend": 0.00, "role": "Ops tasks"}
+    ]
   }
 }

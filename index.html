@@ -138,6 +138,30 @@
     <div id="fs-bars"></div>
   </div>
 
+  <!-- LLM Usage -->
+  <div class="card span2">
+    <h2>🧠 LLM Usage (Today)</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <div style="font-size:28px;font-weight:700;color:var(--accent2)" id="llm-spend">—</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Today's Spend (USD)</div>
+      </div>
+      <div>
+        <div style="font-size:28px;font-weight:700;color:var(--accent)" id="llm-tokens">—</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Tokens</div>
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Context Window <span id="llm-ctx-pct" style="color:var(--text)"></span></div>
+      <div class="bar-track"><div class="bar-fill" id="llm-ctx-bar" style="background:var(--accent);width:0%"></div></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Session Quota <span id="llm-session" style="color:var(--text)"></span></div>
+      <div class="bar-track"><div class="bar-fill" id="llm-session-bar" style="background:var(--green);width:0%"></div></div>
+    </div>
+    <div id="llm-models" style="margin-top:10px"></div>
+  </div>
+
   <!-- Red Flags -->
   <div class="card span2">
     <h2>🚨 Red Flags</h2>
@@ -260,6 +284,24 @@ async function load() {
       document.getElementById('fs-bars').innerHTML = fs.map(s =>
         `<div class="bar-row"><span class="bar-label">${s.l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(s.v/fmx*100,4)}%;background:${s.c}">${s.v}</div></div></div>`
       ).join('');
+    }
+    
+    // LLM
+    if (d.llm) {
+      document.getElementById('llm-spend').textContent = '$' + d.llm.todaySpend.toFixed(2);
+      const tkM = (d.llm.todayTokens / 1000000).toFixed(1);
+      document.getElementById('llm-tokens').textContent = tkM + 'M';
+      document.getElementById('llm-ctx-pct').textContent = d.llm.contextPercent + '% (' + (d.llm.contextUsed/1000).toFixed(0) + 'k/' + (d.llm.contextMax/1000).toFixed(0) + 'k)';
+      document.getElementById('llm-ctx-bar').style.width = d.llm.contextPercent + '%';
+      if (d.llm.contextPercent > 80) document.getElementById('llm-ctx-bar').style.background = 'var(--red)';
+      document.getElementById('llm-session').textContent = d.llm.sessionTimeLeft || '';
+      const weekPct = parseInt(d.llm.weekLeft) || 74;
+      document.getElementById('llm-session-bar').style.width = weekPct + '%';
+      
+      document.getElementById('llm-models').innerHTML = '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">MODEL BREAKDOWN</div>' +
+        d.llm.models.map(m => 
+          `<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03)"><span>${m.name} <span style="color:var(--muted);font-size:10px">${m.role}</span></span><span style="color:var(--accent2)">$${m.spend.toFixed(2)}</span></div>`
+        ).join('');
     }
     
     // Red flags
